@@ -1,5 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import { connectDB } from './config/db';
+import routes from './routes/routes';
 
 dotenv.config();
 
@@ -7,6 +9,9 @@ const app = express();
 const PORT = process.env.PORT || 5005;
 
 app.use(express.json());
+connectDB();
+
+app.use('/v1', routes);
 
 app.get('/health', (req, res) => {
  res.json({status: "healthy", message: "SwiftDeliver Backend"});
