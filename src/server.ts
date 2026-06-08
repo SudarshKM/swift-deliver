@@ -21,9 +21,11 @@ app.get('/register', (req, res) => {
     res.json({status: "registerOpen", message: "SwiftDeliver Register API"});
 });
 
-app.listen(PORT, () => {
-console.log(`Server running in port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running in port ${PORT}`);
+  });
+}
 
 export default app;
 
