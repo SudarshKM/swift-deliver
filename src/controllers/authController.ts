@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken } from '../utils/auth';
+import jwt from 'jsonwebtoken';
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
@@ -27,3 +28,22 @@ export const login = async (req: Request, res: Response) => {
   res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
   res.json({ accessToken, role: user.role });
 };
+
+export const rereshToken = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token not found' });
+  }
+  const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as any;
+  const newAccessToken = generateAccessToken(decoded.userId, decoded.role);
+
+  const newRefreshToken = generateRefreshToken(decoded.user);
+
+  res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
+  res.json({ accessToken: newAccessToken });
+}
+
+export const logout = (req: Request, res: Response) => {
+  res.clearCookie('refreshToken');
+  res.json({ message: 'Logged out successfully' });
+}
