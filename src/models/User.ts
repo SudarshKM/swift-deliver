@@ -7,4 +7,6 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['customer', 'restaurant', 'delivery', 'admin'], default: 'customer' }
 });
 
+userSchema.index({ email: 1, role: 1 });
+
 export default mongoose.model('User', userSchema);
