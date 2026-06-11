@@ -26,7 +26,7 @@ export const login = async (req: Request, res: Response) => {
   const refreshToken = generateRefreshToken(user._id.toString());
 
   res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
-  res.json({ accessToken, role: user.role });
+  res.status(201).json({ accessToken, role: user.role });
 };
 
 export const rereshToken = async (req: Request, res: Response) => {
