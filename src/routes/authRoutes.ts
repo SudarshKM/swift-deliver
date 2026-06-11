@@ -6,7 +6,7 @@ import { getUserStatus } from "../controllers/getUserStatusController";
 const authRoutes = Router();
 
 authRoutes.post('/register', register);
-authRoutes.post('/login', authenticate, authorize, login);
+authRoutes.post('/login', login);
 authRoutes.post('/refresh', rereshToken);
 authRoutes.post('/logout', logout);
 authRoutes.get('/user-status', getUserStatus);

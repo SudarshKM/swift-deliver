@@ -30,7 +30,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const rereshToken = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken;
+  const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
     return res.status(401).json({ message: 'Refresh token not found' });
   }
