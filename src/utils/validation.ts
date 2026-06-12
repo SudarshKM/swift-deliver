@@ -3,7 +3,7 @@ import { UserRole, OrderStatus } from '../types/types';
 
 export const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters long"),
-  email: z.email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
   role: z.nativeEnum(UserRole).default(UserRole.CUSTOMER)
 });
@@ -39,6 +39,6 @@ export const orderSchema = z.object({
   restaurant: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid restaurant ID"),
   items: z.array(orderItemSchema).min(1, "Order must contain at least one item"),
   totalAmount: z.number().positive("Total amount must be greater than 0"),
-  status: z.enum(OrderStatus).default(OrderStatus.pending),
+  status: z.nativeEnum(OrderStatus).default(OrderStatus.pending),
   deliveryAddress: z.string().min(5, "Delivery address must be at least 5 characters long")
 });
