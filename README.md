@@ -92,6 +92,14 @@ swift-deliver/
 - `GET /restaurants` - Get a list of active restaurants.
 - `GET /restaurants/:id/menu` - Get the menu (products) for a specific restaurant.
 
+### Products (`/products`)
+
+- `POST /products/add-product` - Add a new product to a restaurant's menu (Requires 'restaurant' role).
+
+### Orders (`/orders`)
+
+- `POST /orders/create-order` - Create a new order (Requires 'customer' role).
+
 ## 🛡️ Authentication & Security
 
 - **Access Tokens:** Short-lived tokens (e.g., 15 minutes) used to authenticate requests.
