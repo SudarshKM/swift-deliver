@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['customer', 'restaurant', 'delivery', 'admin'], default: 'customer' }
-});
+}, { strict: process.env.STRICT_POLICY === 'throw' ? 'throw' : (process.env.STRICT_POLICY === 'false' ? false : true) });
 
 userSchema.index({ email: 1, role: 1 });
 

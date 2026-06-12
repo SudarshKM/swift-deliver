@@ -12,13 +12,13 @@ const orderSchema = new mongoose.Schema({
   restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
   items: [orderItemSchema],
   totalAmount: Number,
-  status: { 
-    type: String, 
-    enum: OrderStatus, 
-    default: OrderStatus.pending 
+  status: {
+    type: String,
+    enum: OrderStatus,
+    default: OrderStatus.pending
   },
   deliveryAddress: String,
   createdAt: { type: Date, default: Date.now }
-});
+}, { strict: process.env.STRICT_POLICY === 'throw' ? 'throw' : (process.env.STRICT_POLICY === 'false' ? false : true) });
 
 export default mongoose.model('Order', orderSchema);
