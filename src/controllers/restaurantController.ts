@@ -4,7 +4,7 @@ import Product from '../models/Product';
 
 export const createRestaurant = async (req: Request, res: Response) => {
   const restaurant = await Restaurant.create({ ...req.body, owner: (req as any).user.userId });
-  res.status(201).json(restaurant);
+  res.status(201).json({message: "Restaurant created", restaurant});
 };
 
 export const getRestaurants = async (req: Request, res: Response) => {
