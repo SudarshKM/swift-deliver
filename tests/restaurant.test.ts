@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../src/server";
 import mongoose from "mongoose";
+import { UserRole } from "../src/types/types";
 
 describe("Restaurant API", () => {
     let accessToken: string;
@@ -12,7 +13,7 @@ describe("Restaurant API", () => {
             name: "Test Owner",
             email: testEmail,
             password: "password123",
-            role: "restaurant"
+            role: UserRole.RESTAURANT,
         });
 
         // 2. Login to get the access token
