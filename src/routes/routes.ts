@@ -1,11 +1,13 @@
 import { Router } from "express";
 import authRoutes from "./authRoutes";
 import { authenticate } from "../middleware/auth";
+import restaurantRoutes from "./restaurantRoutes";
 
 
 const routes = Router();
 
 routes.use('/auth', authRoutes);
+routes.use('/restaurants', restaurantRoutes);
 
 routes.get('/protected', authenticate, (req, res) => {
   res.json({ message: 'Protected route accessed', user: (req as any).user });

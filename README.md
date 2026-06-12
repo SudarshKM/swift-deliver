@@ -19,8 +19,9 @@ swift-deliver/
 │   ├── config/        # Database configuration
 │   ├── controllers/   # Request handlers for routes
 │   ├── middleware/    # Authentication and authorization middlewares
-│   ├── models/        # Mongoose database models
+│   ├── models/        # Mongoose database models (User, Restaurant, Product, Order)
 │   ├── routes/        # API route definitions
+│   ├── types/         # TypeScript type definitions and enums
 │   ├── utils/         # Helper functions (e.g., JWT generation)
 │   └── server.ts      # Application entry point
 ├── tests/             # Jest tests
@@ -85,13 +86,19 @@ swift-deliver/
 
 - `GET /v1/protected` - An example of an authenticated route that returns user info.
 
+### Restaurants (`/restaurants`)
+
+- `POST /restaurants` - Create a new restaurant (Requires 'restaurant' role).
+- `GET /restaurants` - Get a list of active restaurants.
+- `GET /restaurants/:id/menu` - Get the menu (products) for a specific restaurant.
+
 ## 🛡️ Authentication & Security
 
 - **Access Tokens:** Short-lived tokens (e.g., 15 minutes) used to authenticate requests.
 - **Refresh Tokens:** Long-lived tokens (e.g., 7 days) securely stored as HTTP-only cookies to obtain new access tokens without re-authenticating.
 - **Middlewares:**
   - `authenticate`: Verifies the access token provided in the Authorization header.
-  - `authorize(roles[])`: Ensures the authenticated user has the necessary role to access the route.
+  - `authorize(roles[])`: Ensures the authenticated user has the necessary role (e.g., `admin`, `restaurant`, `customer`, `delivery`) to access the route.
 
 ## 🧪 Testing
 
