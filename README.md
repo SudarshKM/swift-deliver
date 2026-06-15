@@ -9,6 +9,8 @@ A robust backend service for the SwiftDeliver application, built with Node.js, E
 - **MongoDB** & **Mongoose**: NoSQL database and object modeling tool.
 - **JWT (JSON Web Tokens)**: Secure standard for authentication and authorization.
 - **Bcryptjs**: Password hashing.
+- **Zod**: TypeScript-first schema validation.
+- **Helmet**: Express middleware to secure HTTP headers.
 - **Jest** & **Supertest**: Testing frameworks for unit and integration tests.
 
 ## 📂 Project Structure
@@ -54,6 +56,7 @@ swift-deliver/
    MONGODB_URI=your_mongodb_connection_string
    ACCESS_TOKEN_SECRET=your_access_token_secret
    REFRESH_TOKEN_SECRET=your_refresh_token_secret
+   STRICT_POLICY=throw
    ```
 
 4. **Start the Application:**
@@ -86,19 +89,19 @@ swift-deliver/
 
 - `GET /v1/protected` - An example of an authenticated route that returns user info.
 
-### Restaurants (`/restaurants`)
+### Restaurants (`/v1/restaurants`)
 
-- `POST /restaurants` - Create a new restaurant (Requires 'restaurant' role).
-- `GET /restaurants` - Get a list of active restaurants.
-- `GET /restaurants/:id/menu` - Get the menu (products) for a specific restaurant.
+- `POST /v1/restaurants` - Create a new restaurant (Requires 'restaurant' role).
+- `GET /v1/restaurants` - Get a list of active restaurants.
+- `GET /v1/restaurants/:id/menu` - Get the menu (products) for a specific restaurant.
 
-### Products (`/products`)
+### Products (`/v1/products`)
 
-- `POST /products/add-product` - Add a new product to a restaurant's menu (Requires 'restaurant' role).
+- `POST /v1/products/add-product` - Add a new product to a restaurant's menu (Requires 'restaurant' role).
 
-### Orders (`/orders`)
+### Orders (`/v1/orders`)
 
-- `POST /orders/create-order` - Create a new order (Requires 'customer' role).
+- `POST /v1/orders/create-order` - Create a new order (Requires 'customer' role).
 
 ## 🛡️ Authentication & Security
 

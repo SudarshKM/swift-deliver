@@ -3,16 +3,29 @@ import User from '../models/User';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken } from '../utils/auth';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 export const register = async (req: Request, res: Response) => {
-  const { name, email, password, role } = req.body;
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: 'User already exists' });
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { name, email, password, role } = req.body;
+    const userExists = await User.findOne({ email }).session(session);
+    if (userExists) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: 'User already exists' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create([{ name, email, password: hashedPassword, role }], { session });
+    
+    res.status(201).json({ message: 'User registered', userId: user[0]._id });
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
   }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, password: hashedPassword, role });
-  res.status(201).json({ message: 'User registered', userId: user._id });
 };
 
 export const login = async (req: Request, res: Response) => {
