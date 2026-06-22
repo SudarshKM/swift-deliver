@@ -1,12 +1,14 @@
 # SwiftDeliver Backend API
 
-A robust backend service for the SwiftDeliver application, built with Node.js, Express, TypeScript, and MongoDB. The API features a secure authentication system utilizing JSON Web Tokens (JWT) and refresh tokens.
+A robust backend service for the SwiftDeliver application, built with Node.js, Express, TypeScript, MongoDB, and Redis. The API features a secure authentication system utilizing JSON Web Tokens (JWT) and refresh tokens, with Redis-powered caching for high-performance data retrieval.
 
 ## 🚀 Technologies
 
 - **Node.js** & **Express**: Fast, unopinionated web framework for Node.js.
 - **TypeScript**: Typed superset of JavaScript that compiles to plain JavaScript.
 - **MongoDB** & **Mongoose**: NoSQL database and object modeling tool.
+- **Redis** & **ioredis**: In-memory data store used for caching.
+- **Docker** & **Docker Compose**: Containerized development and deployment.
 - **JWT (JSON Web Tokens)**: Secure standard for authentication and authorization.
 - **Bcryptjs**: Password hashing.
 - **Zod**: TypeScript-first schema validation.
@@ -18,7 +20,7 @@ A robust backend service for the SwiftDeliver application, built with Node.js, E
 ```
 swift-deliver/
 ├── src/
-│   ├── config/        # Database configuration
+│   ├── config/        # Database and Redis configuration
 │   ├── controllers/   # Request handlers for routes
 │   ├── middleware/    # Authentication and authorization middlewares
 │   ├── models/        # Mongoose database models (User, Restaurant, Product, Order)
@@ -28,11 +30,16 @@ swift-deliver/
 │   └── server.ts      # Application entry point
 ├── tests/             # Jest tests
 ├── .env               # Environment variables
+├── docker-compose.yml # Docker Compose configuration
+├── Dockerfile         # Multi-stage Docker build
+├── .dockerignore      # Docker build context exclusions
 ├── package.json       # Project metadata and dependencies
 └── tsconfig.json      # TypeScript compiler configuration
 ```
 
 ## 🛠️ Setup & Installation
+
+### Docker (Recommended)
 
 1. **Clone the repository:**
 
@@ -40,6 +47,39 @@ swift-deliver/
    git clone https://github.com/yourusername/swift-deliver.git
    cd swift-deliver
    ```
+
+2. **Configure Environment Variables:**
+
+   Create a `.env` file in the root directory and add the following variables:
+
+   ```env
+   PORT=5005
+   MONGODB_URI=mongodb://mongo:27017/swift-deliver
+   ACCESS_TOKEN_SECRET=your_access_token_secret
+   REFRESH_TOKEN_SECRET=your_refresh_token_secret
+   REDIS_HOST=redis
+   STRICT_POLICY=throw
+   ```
+
+3. **Start all services with Docker Compose:**
+
+   ```bash
+   docker compose up --build
+   ```
+
+   This starts the **app** (port 5005), **MongoDB** (port 27017), and **Redis** (port 6379) containers.
+
+4. **Stop the services:**
+
+   ```bash
+   docker compose down
+   ```
+
+   Use `docker compose down -v` to also remove persistent volumes.
+
+### Local (Without Docker)
+
+1. **Prerequisites:** Ensure MongoDB and Redis are running locally.
 
 2. **Install dependencies:**
 
@@ -49,13 +89,14 @@ swift-deliver/
 
 3. **Configure Environment Variables:**
 
-   Create a `.env` file in the root directory and add the following variables:
+   Create a `.env` file with:
 
    ```env
    PORT=5005
    MONGODB_URI=your_mongodb_connection_string
    ACCESS_TOKEN_SECRET=your_access_token_secret
    REFRESH_TOKEN_SECRET=your_refresh_token_secret
+   REDIS_HOST=localhost
    STRICT_POLICY=throw
    ```
 
@@ -67,6 +108,7 @@ swift-deliver/
      ```
    - **Production Mode:**
      ```bash
+     npm run build
      npm start
      ```
 
@@ -92,7 +134,7 @@ swift-deliver/
 ### Restaurants (`/v1/restaurants`)
 
 - `POST /v1/restaurants` - Create a new restaurant (Requires 'restaurant' role).
-- `GET /v1/restaurants` - Get a list of active restaurants.
+- `GET /v1/restaurants` - Get a list of active restaurants. *(Redis cached — 1 hour TTL)*
 - `GET /v1/restaurants/:id/menu` - Get the menu (products) for a specific restaurant.
 
 ### Products (`/v1/products`)
