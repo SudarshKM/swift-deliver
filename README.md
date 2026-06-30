@@ -1,6 +1,6 @@
 # SwiftDeliver Backend API
 
-A robust backend service for the SwiftDeliver application, built with Node.js, Express, TypeScript, MongoDB, and Redis. The API features a secure authentication system utilizing JSON Web Tokens (JWT) and refresh tokens, with Redis-powered caching for high-performance data retrieval.
+A robust backend service for the SwiftDeliver application, built with Node.js, Express, TypeScript, MongoDB, and Redis. The API features a secure authentication system utilizing JSON Web Tokens (JWT) and refresh tokens, with Redis-powered caching for high-performance data retrieval, and Redis-backed rate limiting to protect against abuse.
 
 ## 🚀 Technologies
 
@@ -13,6 +13,7 @@ A robust backend service for the SwiftDeliver application, built with Node.js, E
 - **Bcryptjs**: Password hashing.
 - **Zod**: TypeScript-first schema validation.
 - **Helmet**: Express middleware to secure HTTP headers.
+- **express-rate-limit** & **rate-limit-redis**: Redis-backed API rate limiting.
 - **Jest** & **Supertest**: Testing frameworks for unit and integration tests.
 
 ## 📂 Project Structure
@@ -22,7 +23,7 @@ swift-deliver/
 ├── src/
 │   ├── config/        # Database and Redis configuration
 │   ├── controllers/   # Request handlers for routes
-│   ├── middleware/    # Authentication and authorization middlewares
+│   ├── middleware/    # Auth, rate limiting, validation, and error handling
 │   ├── models/        # Mongoose database models (User, Restaurant, Product, Order)
 │   ├── routes/        # API route definitions
 │   ├── types/         # TypeScript type definitions and enums
@@ -116,7 +117,10 @@ swift-deliver/
 
 ### Health Check
 
-- `GET /health` - Returns the health status of the backend API.
+- `GET /health` - Returns the health status of the backend API and Redis connectivity.
+  ```json
+  { "status": "healthy", "message": "SwiftDeliver Backend", "redis": "connected" }
+  ```
 - `GET /register` - Returns register API open status.
 
 ### Authentication (`/v1/auth`)
@@ -149,9 +153,24 @@ swift-deliver/
 
 - **Access Tokens:** Short-lived tokens (e.g., 15 minutes) used to authenticate requests.
 - **Refresh Tokens:** Long-lived tokens (e.g., 7 days) securely stored as HTTP-only cookies to obtain new access tokens without re-authenticating.
+- **Rate Limiting:** All `/v1` endpoints are rate-limited to **100 requests per 15 minutes** per IP, backed by Redis for distributed state.
 - **Middlewares:**
   - `authenticate`: Verifies the access token provided in the Authorization header.
   - `authorize(roles[])`: Ensures the authenticated user has the necessary role (e.g., `admin`, `restaurant`, `customer`, `delivery`) to access the route.
+  - `apiLimiter`: Redis-backed rate limiter applied to all `/v1` routes.
+
+## 🐛 Debugging (VS Code)
+
+The project includes a pre-configured VS Code debug setup that runs Redis and MongoDB in Docker while launching the app locally with `ts-node`.
+
+1. Ensure Docker is running.
+2. Open the **Run and Debug** panel (`Ctrl+Shift+D`).
+3. Select **"Debug Server (ts-node)"** and press **F5**.
+
+This will:
+- Auto-start `mongo` and `redis` containers via the `docker-infra-up` pre-launch task.
+- Launch the app locally with `REDIS_HOST=localhost` so it connects to the Docker-exposed ports.
+- Enable breakpoints in all `.ts` source files.
 
 ## 🧪 Testing
 
