@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Order from "../models/Order";
 import mongoose from "mongoose";
+import { orderQueue } from "../queues/orderQueue";
 
 
 export const createOrder = async (req: Request, res: Response) => {
@@ -9,7 +10,7 @@ export const createOrder = async (req: Request, res: Response) => {
     try {
         const { restaurant, items, totalAmount, status, deliveryAddress } = req.body;
         // MUST pass session to .create() and wrap in array
-        const order = await Order.create([{
+        const [newOrder] = await Order.create([{
             customer: (req as any).user.userId,
             items,
             status,
@@ -19,7 +20,13 @@ export const createOrder = async (req: Request, res: Response) => {
             createdAt: Date.now()
         }], { session });
 
-        res.status(201).json({ message: "Order created", order: order[0] });
+        await orderQueue.add('order-confirmation', {
+            orderId: newOrder._id,
+            customerEmail: req.body.customerEmail,
+            totalAmount: newOrder.totalAmount
+        })
+
+        res.status(201).json({ message: "Order created", order: newOrder });
         await session.commitTransaction();
     } catch (e) {
         await session.abortTransaction();

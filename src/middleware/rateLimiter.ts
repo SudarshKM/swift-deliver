@@ -3,7 +3,7 @@ import { redis } from '../config/redis';
 
 export const apiLimiter = rateLimit({
   store: new (require('rate-limit-redis').default)({
-    client: redis,
+    sendCommand: (...args: string[]) => (redis as any).call(...args),
     prefix: 'ratelimit:'
   }),
   windowMs: 15 * 60 * 1000, // 15 minutes

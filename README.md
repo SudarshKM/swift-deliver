@@ -1,13 +1,14 @@
 # SwiftDeliver Backend API
 
-A robust backend service for the SwiftDeliver application, built with Node.js, Express, TypeScript, MongoDB, and Redis. The API features a secure authentication system utilizing JSON Web Tokens (JWT) and refresh tokens, with Redis-powered caching for high-performance data retrieval, and Redis-backed rate limiting to protect against abuse.
+A robust backend service for the SwiftDeliver application, built with Node.js, Express, TypeScript, MongoDB, and Redis. The API features a secure authentication system utilizing JSON Web Tokens (JWT) and refresh tokens, with Redis-powered caching for high-performance data retrieval, Redis-backed rate limiting to protect against abuse, and BullMQ-powered background job processing for asynchronous order workflows.
 
 ## 🚀 Technologies
 
 - **Node.js** & **Express**: Fast, unopinionated web framework for Node.js.
 - **TypeScript**: Typed superset of JavaScript that compiles to plain JavaScript.
 - **MongoDB** & **Mongoose**: NoSQL database and object modeling tool.
-- **Redis** & **ioredis**: In-memory data store used for caching.
+- **Redis** & **ioredis**: In-memory data store used for caching, rate limiting, and job queue backing.
+- **BullMQ**: Redis-backed job queue for reliable background task processing with retries and concurrency control.
 - **Docker** & **Docker Compose**: Containerized development and deployment.
 - **JWT (JSON Web Tokens)**: Secure standard for authentication and authorization.
 - **Bcryptjs**: Password hashing.
@@ -25,9 +26,11 @@ swift-deliver/
 │   ├── controllers/   # Request handlers for routes
 │   ├── middleware/    # Auth, rate limiting, validation, and error handling
 │   ├── models/        # Mongoose database models (User, Restaurant, Product, Order)
+│   ├── queues/        # BullMQ queue definitions and event listeners
 │   ├── routes/        # API route definitions
 │   ├── types/         # TypeScript type definitions and enums
 │   ├── utils/         # Helper functions (e.g., JWT generation)
+│   ├── workers/       # BullMQ worker processors for background jobs
 │   └── server.ts      # Application entry point
 ├── tests/             # Jest tests
 ├── .env               # Environment variables
@@ -147,7 +150,36 @@ swift-deliver/
 
 ### Orders (`/v1/orders`)
 
-- `POST /v1/orders/create-order` - Create a new order (Requires 'customer' role).
+- `POST /v1/orders/create-order` - Create a new order (Requires 'customer' role). Automatically enqueues a background job for order confirmation processing.
+
+## ⚡ Background Job Queue (BullMQ)
+
+The application uses **BullMQ** with Redis as the backing store for reliable, asynchronous job processing.
+
+### Architecture
+
+```
+┌──────────────┐    enqueue    ┌─────────────────────┐    process    ┌───────────────────┐
+│  Controller  │ ────────────▶ │  Redis (BullMQ)     │ ────────────▶ │     Worker        │
+│  (Producer)  │               │  order-confirmation  │               │  (Consumer)       │
+└──────────────┘               └─────────────────────┘               └───────────────────┘
+```
+
+- **Producer** (`src/queues/orderQueue.ts`): Defines the `order-confirmation` queue. When an order is created, a job is added containing the `orderId`, `customerEmail`, and `totalAmount`.
+- **Worker** (`src/workers/orderWorker.ts`): Processes jobs from the `order-confirmation` queue with up to **5 concurrent** jobs. Handles tasks like sending confirmation emails, notifying restaurants, and updating analytics.
+- **Events** (`src/queues/orderQueue.ts`): `QueueEvents` listens for job lifecycle events (e.g., `completed`) for logging and monitoring.
+
+### Job Configuration
+
+| Option | Value | Description |
+|--------|-------|-------------|
+| Retries | 3 | Each failed job is retried up to 3 times |
+| Backoff | Exponential (1s base) | Wait time doubles on each retry (1s → 2s → 4s) |
+| Concurrency | 5 | Up to 5 jobs processed simultaneously |
+
+### Redis Requirement
+
+BullMQ requires the Redis connection to be configured with `maxRetriesPerRequest: null` since it uses blocking commands (`BRPOPLPUSH`). This is configured in `src/config/redis.ts`.
 
 ## 🛡️ Authentication & Security
 

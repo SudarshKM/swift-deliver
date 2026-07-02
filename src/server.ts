@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { errorHandler } from './middleware/errorHandler';
 import { redis } from './config/redis';
 import { apiLimiter } from './middleware/rateLimiter';
+import './workers/orderWorker'
 
 dotenv.config();
 
@@ -15,7 +16,9 @@ const PORT = process.env.PORT || 5005;
 app.use(helmet());
 
 app.use(express.json());
+
 connectDB();
+
 app.use('/v1', apiLimiter);
 app.use('/v1', (req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
