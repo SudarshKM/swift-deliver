@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Order from "../models/Order";
 import mongoose from "mongoose";
 import { orderQueue } from "../queues/orderQueue";
+import { JobName } from "../types/types";
 
 
 export const createOrder = async (req: Request, res: Response) => {
@@ -20,7 +21,7 @@ export const createOrder = async (req: Request, res: Response) => {
             createdAt: Date.now()
         }], { session });
 
-        await orderQueue.add('order-confirmation', {
+        await orderQueue.add(JobName.ORDER_CONFIRMATION, {
             orderId: newOrder._id,
             customerEmail: req.body.customerEmail,
             totalAmount: newOrder.totalAmount

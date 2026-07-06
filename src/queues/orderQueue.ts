@@ -1,9 +1,10 @@
 import { Queue, QueueEvents } from "bullmq";
 import { redis } from "../config/redis";
 import { queueLogger } from "../config/logger";
+import { JobName } from "../types/types";
 
 
-export const orderQueue = new Queue('order-confirmation', {
+export const orderQueue = new Queue(JobName.ORDER_CONFIRMATION, {
     connection: redis as any,
     defaultJobOptions: {
         attempts: 3,    // Retry up to 3 times
@@ -12,7 +13,7 @@ export const orderQueue = new Queue('order-confirmation', {
 });
 
 
-export const orderQueueEvents = new QueueEvents('order-confirmation', {
+export const orderQueueEvents = new QueueEvents(JobName.ORDER_CONFIRMATION, {
     connection: redis as any
 });
 

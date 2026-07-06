@@ -1,10 +1,11 @@
 import { Worker } from "bullmq";
 import { redis } from "../config/redis";
 import { workerLogger } from "../config/logger";
+import { JobName } from "../types/types";
 
 
 
-export const orderWorker = new Worker('order-confirmation', async (job) => {
+export const orderWorker = new Worker(JobName.ORDER_CONFIRMATION, async (job) => {
     const { orderId, customerEmail } = job.data;
 
     workerLogger.info({ orderId, customerEmail }, "Processing order");

@@ -16,3 +16,7 @@ export enum OrderStatus {
     cancelled = "cancelled",
     ready = "ready",
 }
+
+export enum JobName {
+    ORDER_CONFIRMATION = "order-confirmation",
+}
