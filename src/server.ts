@@ -1,4 +1,5 @@
 import express from 'express'
+import http from 'http';
 import logger from './config/logger';
 import { requestLogger } from './middleware/requestLogger';
 import dotenv from 'dotenv'
@@ -9,11 +10,38 @@ import { errorHandler } from './middleware/errorHandler';
 import { redis } from './config/redis';
 import { apiLimiter } from './middleware/rateLimiter';
 import './workers/orderWorker'
+import { Server } from 'socket.io';
+
+declare global {
+  var io: Server;
+}
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5005;
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*"
+  }
+});
+
+io.on("connection", (socket) => {
+  logger.info({ socketId: socket.id }, "Client connected");
+
+  socket.on('join-order', (orderId) => {
+    socket.join(`order-${orderId}`);
+  });
+
+  socket.on("disconnect", () => {
+    logger.info({ socketId: socket.id }, "Client disconnected");
+  })
+})
+
+// Make io available to controllers if needed (or use global)
+global.io = io;   // Simple way for now
 
 app.use(helmet());
 
@@ -38,13 +66,13 @@ app.get('/health', async (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    res.json({status: "registerOpen", message: "SwiftDeliver Register API"});
+  res.json({ status: "registerOpen", message: "SwiftDeliver Register API" });
 });
 
 app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     logger.info({ port: PORT }, `Server running on port ${PORT}`);
   });
 }
