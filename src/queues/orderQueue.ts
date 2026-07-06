@@ -1,5 +1,6 @@
 import { Queue, QueueEvents } from "bullmq";
 import { redis } from "../config/redis";
+import { queueLogger } from "../config/logger";
 
 
 export const orderQueue = new Queue('order-confirmation', {
@@ -16,5 +17,5 @@ export const orderQueueEvents = new QueueEvents('order-confirmation', {
 });
 
 orderQueueEvents.on('completed', ({ jobId }) => {
-  console.log(`Job ${jobId} has completed`);
+  queueLogger.info({ jobId }, "Job completed");
 });

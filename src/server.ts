@@ -1,4 +1,6 @@
 import express from 'express'
+import logger from './config/logger';
+import { requestLogger } from './middleware/requestLogger';
 import dotenv from 'dotenv'
 import { connectDB } from './config/db';
 import routes from './routes/routes';
@@ -19,11 +21,10 @@ app.use(express.json());
 
 connectDB();
 
+app.use(requestLogger);
+
 app.use('/v1', apiLimiter);
-app.use('/v1', (req, res, next) => {
-  console.log(`${req.method} ${req.originalUrl}`);
-  next();
-}, routes);
+app.use('/v1', routes);
 
 app.get('/health', async (req, res) => {
   let redisStatus = 'disconnected';
@@ -44,7 +45,7 @@ app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`Server running in port ${PORT}`);
+    logger.info({ port: PORT }, `Server running on port ${PORT}`);
   });
 }
 
