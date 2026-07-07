@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Server (ts-node)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/swift-deliver-backend/node_modules/.bin/ts-node",
+      "args": ["${workspaceFolder}/swift-deliver-backend/src/server.ts"],
+      "cwd": "${workspaceFolder}/swift-deliver-backend",
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "development",
+        "REDIS_HOST": "localhost"
+      },
+      "skipFiles": ["<node_internals>/**", "node_modules/**"],
+      "preLaunchTask": "docker-infra-up"
+    }
+  ]
+}

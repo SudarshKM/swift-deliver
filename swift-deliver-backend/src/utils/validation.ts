@@ -42,3 +42,8 @@ export const orderSchema = z.object({
   status: z.nativeEnum(OrderStatus).default(OrderStatus.pending),
   deliveryAddress: z.string().min(5, "Delivery address must be at least 5 characters long")
 });
+
+export const updateOrderStatusSchema = z.object({
+  status: z.nativeEnum(OrderStatus)
+});
+

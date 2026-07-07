@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docker-infra-up",
+      "type": "shell",
+      "command": "docker compose up -d mongo redis",
+      "options": {
+        "cwd": "${workspaceFolder}/swift-deliver-backend"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    }
+  ]
+}
