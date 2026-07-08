@@ -1,5 +1,6 @@
 import express from 'express'
 import http from 'http';
+import cors from 'cors';
 import logger from './config/logger';
 import { requestLogger } from './middleware/requestLogger';
 import dotenv from 'dotenv'
@@ -22,9 +23,21 @@ const app = express();
 const PORT = process.env.PORT || 5005;
 const httpServer = http.createServer(app);
 
+const allowedOrigins = [
+  'http://localhost',
+  'http://localhost:80',
+  'http://localhost:5173',   // Vite development port
+  process.env.FRONTEND_URL
+].filter(Boolean) as string[];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 const io = new Server(httpServer, {
   cors: {
-    origin: "*"
+    origin: allowedOrigins
   }
 });
 

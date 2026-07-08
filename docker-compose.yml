@@ -1,17 +1,19 @@
 version: '3.9'
 
 services:
-  app:
-    build: .
+  backend:
+    build: ./swift-deliver-backend
+    command: npm run dev
     env_file:
-      - .env
+      - ./swift-deliver-backend/.env
     depends_on:
       - mongo
       - redis
     volumes:
-      - .:/app   # For development (hot reload)
-      - /app/node_modules   # Prevent overwriting container modules
-    command: npm run dev           # Use ts-node for development
+      - ./swift-deliver-backend:/app
+      - /app/node_modules
+    ports:
+      - "5005:5005"
 
   mongo:
     image: mongo:7
@@ -29,14 +31,12 @@ services:
     volumes:
       - redis-data:/data
 
-  nginx:
-    image: nginx:alpine
+  frontend:
+    build: ./swift-deliver-frontend
     ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - "80:80"          # Main access point
     depends_on:
-      - app
+      - backend
 
 volumes:
   mongo-data:
