@@ -36,15 +36,29 @@ swift-deliver-frontend/
 
 ## 🛠️ Setup & Run
 
-### 1. Prerequisites
-Ensure you have [Node.js](https://nodejs.org/) installed (v18+ recommended).
+### Docker (Recommended)
+To run the frontend as part of the full Docker stack:
+1. Navigate to the root folder `swift-deliver` and start services:
+   ```bash
+   docker compose up --build
+   ```
+2. Configure `.env` in the `swift-deliver-frontend` folder to route API/socket traffic through the Nginx proxy (port 80):
+   ```env
+   VITE_API_BASE_URL=/api/v1
+   VITE_SOCKET_URL=/
+   ```
 
-### 2. Configure Environment Variables
-Create a `.env` file in the `swift-deliver-frontend` folder:
-```env
-VITE_API_BASE_URL=http://localhost:5005/v1
-VITE_SOCKET_URL=http://localhost:5005
-```
+### Standalone Local Development (Without Docker)
+To run the frontend server individually on your host machine:
+
+1. **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) installed (v18+ recommended).
+
+2. **Configure Environment Variables**:
+   Create a `.env` file in the `swift-deliver-frontend` folder to talk directly to your locally running backend server (port 5005):
+   ```env
+   VITE_API_BASE_URL=http://localhost:5005/v1
+   VITE_SOCKET_URL=http://localhost:5005
+   ```
 
 ### 3. Install Dependencies
 Run the following command:

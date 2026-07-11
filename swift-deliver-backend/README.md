@@ -45,17 +45,16 @@ swift-deliver/
 
 ### Docker (Recommended)
 
-1. **Clone the repository:**
+To run the full stack (frontend, backend, databases) using the consolidated docker-compose configuration at the root of the project:
 
+1. **Clone and navigate to the root directory:**
    ```bash
    git clone https://github.com/yourusername/swift-deliver.git
    cd swift-deliver
    ```
 
 2. **Configure Environment Variables:**
-
-   Create a `.env` file in the root directory and add the following variables:
-
+   Create a `.env` file in the `swift-deliver-backend` directory (not the root directory) and add the following variables:
    ```env
    PORT=5005
    MONGODB_URI=mongodb://mongo:27017/swift-deliver
@@ -65,20 +64,16 @@ swift-deliver/
    STRICT_POLICY=throw
    ```
 
-3. **Start all services with Docker Compose:**
-
+3. **Start all services with Docker Compose (from the root directory):**
    ```bash
    docker compose up --build
    ```
-
-   This starts the **app** (port 5005), **MongoDB** (port 27017), and **Redis** (port 6379) containers.
+   This starts the backend, frontend, MongoDB, and Redis containers together.
 
 4. **Stop the services:**
-
    ```bash
    docker compose down
    ```
-
    Use `docker compose down -v` to also remove persistent volumes.
 
 ### Local (Without Docker)
